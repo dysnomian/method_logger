@@ -1,3 +1,5 @@
+# NOTE: This is probably the least thought out module, but it's worked so far,
+#       so I won't complain too much.
 module Reporter
   extend self
 

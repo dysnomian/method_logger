@@ -1,10 +1,13 @@
+# NOTE: In the midst of a modification to add class methods, which wasn't
+# covered by my original version. That's turning out to be a little more
+# nuanced than I expected going in.
 module Clobberer
   extend self
 
   def run
     return unless ENV['COUNT_CALLS_TO']
 
-    target_class.class_eval(patching_code)
+    target_class.class_eval(patching_code(!instance_method?))
   end
 
   private
@@ -17,10 +20,6 @@ module Clobberer
     ENV['COUNT_CALLS_TO'].include?("#")
   end
 
-  def class_method?
-    !instance_method?
-  end
-
   def parse_instance_method
     ENV['COUNT_CALLS_TO'].split("#")
   end
@@ -29,8 +28,12 @@ module Clobberer
     ENV['COUNT_CALLS_TO'].split(".")
   end
 
-  def patching_code
-    "extend Logger; __add_logger :#{target_method}"
+  def patching_code(class_method=false)
+    if class_method
+      "extend Logger; __add_logger :#{target_method}"
+    else
+      "extend Logger; __add_logger :#{target_method}, true"
+    end
   end
 
   def target_class
